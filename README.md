@@ -1,4 +1,3 @@
-# assistkb-search-rag
 
 # AssistKB Search - Projet RAG
 
@@ -13,9 +12,9 @@
 ## Contexte du projet
 
 Ce projet s’inscrit dans un TP de mise en pratique d’un pipeline complet de Retrieval-Augmented Generation (RAG).
-L’objectif est de construire un assistant capable de répondre à des questions en s’appuyant sur un corpus documentaire externe, tout en citant ses sources.
+L’objectif est de construire un assistant capable de répondre à des questions en s’appuyant sur un corpus documentaire externe, tout en citant ses sources
 
-Le système est conçu comme un assistant de recherche interne type ESN, permettant d’interroger une base de connaissances hétérogène (PDF, HTML, JSON) et de générer des réponses contextualisées via un modèle de langage.
+Le système est conçu comme un assistant de recherche interne type ESN, permettant d’interroger une base de connaissances hétérogène (PDF, HTML, JSON) et de générer des réponses contextualisées via un modèle de langage
 
 ---
 
@@ -47,7 +46,7 @@ Le système est conçu comme un assistant de recherche interne type ESN, permett
 ### Installation
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/celia-merabet/assistkb-search-rag.git
 cd assistkb-search-rag
 pip install -r requirements.txt
 ```
