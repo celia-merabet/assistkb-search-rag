@@ -2,10 +2,11 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance, PointStruct
 import json
 import uuid
+import os
 
 COLLECTION = "assistkb"
 
-client = QdrantClient(host="localhost", port=6333)
+client = QdrantClient(host=os.environ.get("QDRANT_HOST", "localhost"), port=6333)
 
 
 # -------------------------

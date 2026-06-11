@@ -1,33 +1,42 @@
+import time
 from fastapi import FastAPI
+from pydantic import BaseModel
 from app.retrieve import search, should_refuse
 from app.generate import generate_answer
-import time
 
 app = FastAPI()
 
 
-# 👉 LLM SIMPLE (tu remplaces par Groq ou Gemini)
-def fake_llm(prompt):
-    return "Réponse basée sur le contexte fourni."
+class Question(BaseModel):
+    question: str
+    top_k: int = 5
 
 
 @app.post("/ask")
-def ask(question: str):
+def ask(q: Question):
     start = time.time()
-
-    results = search(question, top_k=5)
+    results = search(q.question, top_k=q.top_k)
 
     if should_refuse(results):
         return {
             "answer": "Je ne dispose pas de cette information dans le corpus.",
             "sources": [],
-            "latency_ms": int((time.time() - start) * 1000)
+            "latency_ms": int((time.time() - start) * 1000),
+            "tokens": {"prompt": 0, "completion": 0},
         }
 
-    answer = generate_answer(fake_llm, question, results)
+    answer, tokens = generate_answer(q.question, results)
 
     return {
         "answer": answer,
-        "sources": [r.payload["source"] for r in results],
-        "latency_ms": int((time.time() - start) * 1000)
+        "sources": [
+            {
+                "doc": r.payload["source"],
+                "chunk_id": r.payload["chunk_id"],
+                "score": round(r.score, 3),
+            }
+            for r in results
+        ],
+        "latency_ms": int((time.time() - start) * 1000),
+        "tokens": tokens,
     }
