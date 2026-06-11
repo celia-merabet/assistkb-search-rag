@@ -9,6 +9,24 @@
 
 ---
 
+## Lancement du projet
+
+### Installation
+
+```bash
+git clone https://github.com/celia-merabet/assistkb-search-rag.git
+cd assistkb-search-rag
+pip install -r requirements.txt
+```
+
+### Lancement avec Docker
+
+```bash
+docker-compose up --build
+```
+
+---
+
 ## Contexte du projet
 
 Ce projet s’inscrit dans un TP de mise en pratique d’un pipeline complet de Retrieval-Augmented Generation (RAG).
@@ -41,20 +59,3 @@ Le système est conçu comme un assistant de recherche interne type ESN, permett
 
 ---
 
-## Lancement du projet
-
-### Installation
-
-```bash
-git clone https://github.com/celia-merabet/assistkb-search-rag.git
-cd assistkb-search-rag
-pip install -r requirements.txt
-```
-
-### Lancement avec Docker
-
-```bash
-docker-compose up --build
-```
-
----
