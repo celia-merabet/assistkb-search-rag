@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
 
@@ -42,7 +41,7 @@ services:
       echo 'Waiting for Qdrant...' &&
       sleep 5 &&
       echo 'Indexing corpus...' &&
-      python scripts/index.py &&
+      python -m scripts.index &&
       echo 'Starting API...' &&
       uvicorn app.api:app --host 0.0.0.0 --port 8000
       "

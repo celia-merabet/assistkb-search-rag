@@ -45,7 +45,7 @@ def upsert():
     for d in data:
         points.append(
             PointStruct(
-                id=str(uuid.uuid4()),
+                id=str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{d['source']}_{d['chunk_id']}")),
                 vector=d["embedding"],
                 payload={
                     "text": d["text"],
