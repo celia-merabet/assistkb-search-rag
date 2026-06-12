@@ -1,4 +1,8 @@
 .env
-corpus/
+
+corpus/raw/
+corpus/chunks.jsonl
+corpus/embedded.jsonl
+
 __pycache__/
 *.pyc
