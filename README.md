@@ -9,7 +9,7 @@
 
   NOTE:  le travail etait en cours sur les deux branches R2-RETRIEVAL et R3-RETRIEVAL
   
-version finale cest sur branche ## main 
+## version finale : cest sur la branche MAIN
 
 ---
 
