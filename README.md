@@ -1,4 +1,3 @@
-
 # AssistKB Search - Projet RAG
 
 
@@ -7,56 +6,112 @@
 * Membre 1 : Celia Merabet
 * Membre 2 : BOUYABRI Mohamed
   
-NOTE: pour l’instant le travail est en cours sur les deux branches R2-RETRIEVAL et R3-RETRIEVAL
----
-
-## Lancement du projet
-
-### Installation
-
-```bash
-git clone https://github.com/celia-merabet/assistkb-search-rag.git
-cd assistkb-search-rag
-pip install -r requirements.txt
-```
-
-### Lancement avec Docker
-
-```bash
-docker-compose up --build
-```
-
 ---
 
 ## Contexte du projet
 
-Ce projet s’inscrit dans un TP de mise en pratique d’un pipeline complet de Retrieval-Augmented Generation (RAG).
-L’objectif est de construire un assistant capable de répondre à des questions en s’appuyant sur un corpus documentaire externe, tout en citant ses sources
+Ce projet s'inscrit dans un TP de mise en pratique d'un pipeline complet de
+Retrieval-Augmented Generation (RAG). L'objectif est de construire un assistant
+capable de répondre à des questions en s'appuyant sur un corpus documentaire,
+tout en citant ses sources et en **refusant de répondre** lorsque l'information
+n'est pas présente dans le corpus (seuil de similarité, anti-hallucination).
 
-Le système est conçu comme un assistant de recherche interne type ESN, permettant d’interroger une base de connaissances hétérogène (PDF, HTML, JSON) et de générer des réponses contextualisées via un modèle de langage
-
----
-
-## Objectifs
-
-* Construire un pipeline RAG complet de bout en bout
-* Ingestion et traitement d’un corpus documentaire
-* Indexation vectorielle des documents
-* Recherche sémantique (retrieval top-k)
-* Génération de réponse avec un LLM
-* Retour de sources associées aux réponses
-* Conteneurisation via Docker Compose
+Le système simule un assistant de recherche interne type ESN, interrogeant une
+base de connaissances hétérogène (incidents, REX, fiches outils, RGPD).
 
 ---
 
 ## Stack technique
 
-* Python
 * FastAPI
-* Sentence-Transformers
-* Qdrant (vector database)
-* LLM : Gemini ou Groq (free tier)
+* Sentence-Transformers (all-MiniLM-L6-v2)
+* Qdrant
+* Groq (llama-3.3-70b-versatile)
 * Docker / Docker Compose
+* BeautifulSoup / PyPDF / lxml
 
 ---
 
+## Lancement du projet
+
+```bash
+git clone https://github.com/celia-merabet/assistkb-search-rag.git
+cd assistkb-search-rag
+git checkout r3-retrieval
+
+# Configurer la clé API (gratuite sur console.groq.com)
+cp .env.example .env
+# → renseigner GROQ_API_KEY dans .env
+
+docker compose up -d --build
+```
+
+Au démarrage, le conteneur API indexe automatiquement le corpus
+(`corpus/seed`) puis lance l'API sur http://localhost:8000.
+
+---
+
+## Tester l'API
+
+Question présente dans le corpus (réponse avec sources) :
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Que s est-il passé lors de l incident hallucination ?"}'
+```
+
+Question hors corpus (refus) :
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Quelle est la capitale de l Australie ?"}'
+```
+
+Interface interactive : http://localhost:8000/docs
+
+Mesurer les métriques (depuis un environnement avec `requests`) :
+```bash
+python app/metrics.py
+```
+
+---
+
+## Structure du projet
+
+```
+app/
+  ingest.py      # extraction + chunking des documents
+  embed.py       # vectorisation (all-MiniLM-L6-v2)
+  store.py       # indexation Qdrant (IDs déterministes anti-doublons)
+  retrieve.py    # recherche top-k + seuil de refus
+  generate.py    # appel LLM Groq, réponse citée
+  api.py         # API FastAPI POST /ask
+  metrics.py     # mesures qualité + exploitation
+scripts/
+  index.py       # pipeline complet (lancé au démarrage du conteneur)
+  fetch_corpus.sh / .ps1   # récupération de corpus additionnel
+corpus/seed/     # base de connaissances (incidents, REX, RGPD, architecture)
+docs/            # compte-rendu et captures
+```
+
+---
+
+## Corpus utilisé
+
+Le corpus de base (`corpus/seed`) contient des documents internes simulés :
+fiches d'incidents, retours d'expérience de mission, fiche outil Qdrant,
+document RGPD et description d'architecture. Un corpus additionnel (data.gouv)
+peut être récupéré via `scripts/fetch_corpus.ps1 -Profile open`.
+
+---
+
+## Variables d'environnement (`.env`)
+
+```
+GROQ_API_KEY=          # votre clé Groq
+GROQ_MODEL=llama-3.3-70b-versatile
+QDRANT_HOST=qdrant
+QDRANT_PORT=6333
+SEUIL_SIMILARITE=0.35  # en dessous : refus de répondre
+
+```
