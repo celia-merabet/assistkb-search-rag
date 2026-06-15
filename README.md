@@ -7,7 +7,9 @@
 * Membre 1 : Celia Merabet
 * Membre 2 : BOUYABRI Mohamed
 
-  NOTE: pour l’instant le travail est en cours sur les deux branches R2-RETRIEVAL et R3-RETRIEVAL
+  NOTE:  le travail etait en cours sur les deux branches R2-RETRIEVAL et R3-RETRIEVAL
+  
+  ##version finale cest sur branche #main 
 
 ---
 
