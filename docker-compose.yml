@@ -1,0 +1,50 @@
+
+services:
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+    restart: unless-stopped
+
+
+  api:
+    build: .
+
+    container_name: assistkb-api
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
+      - SEUIL_SIMILARITE=${SEUIL_SIMILARITE:-0.35}
+
+    volumes:
+      - ./corpus:/app/corpus
+
+    depends_on:
+      - qdrant
+
+    restart: unless-stopped
+
+    command: >
+      sh -c "
+      echo 'Waiting for Qdrant...' &&
+      sleep 5 &&
+      echo 'Indexing corpus...' &&
+      python -m scripts.index &&
+      echo 'Starting API...' &&
+      uvicorn app.api:app --host 0.0.0.0 --port 8000
+      "
+
+volumes:
+  qdrant_data:
