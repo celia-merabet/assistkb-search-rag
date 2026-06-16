@@ -76,6 +76,19 @@ python app/metrics.py
 
 ---
 
+## Évaluation et bonus
+
+**Golden dataset (recall@k)** — `eval/golden.json` associe des questions au document attendu. Le script `app/eval.py` mesure le recall@1/@3/@5 du retrieval :
+```bash
+docker compose exec api python -m app.eval
+```
+
+**Reranking (cross-encoder)** — un cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-classe les résultats. Sur le golden dataset, le recall@1 passe de 88 % à 100 %.
+
+**Intégration continue** — un workflow GitHub Actions (`.github/workflows/ci.yml`) vérifie la syntaxe Python et la validité du golden dataset à chaque push.
+
+---
+
 ## Structure du projet
 
 ```

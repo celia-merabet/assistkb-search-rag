@@ -1,6 +1,6 @@
 # Compte rendu — Projet A : AssistKB Search (RAG)
 
-**Membres :** Mohamed Bouyabri, Celia Merabet
+**Membres :** Celia Merabet, Mohamed Bouyabri
 **Dépôt :** https://github.com/celia-merabet/assistkb-search-rag
 
 ---
@@ -189,3 +189,55 @@ consommé).
 Le corpus seed est constitué de documents internes simulés créés pour le projet.
 Le corpus additionnel récupérable via `scripts/fetch_corpus.sh` provient de
 sources publiques sous licences ouvertes (data.gouv.fr).
+
+---
+
+## 10. Bonus réalisés
+
+### Évaluation par golden dataset (recall@k)
+
+Un jeu de 8 questions de référence (`eval/golden.json`) associe chaque question
+au document qui devrait être retrouvé. Le script `app/eval.py` mesure le
+recall@k : la proportion de questions pour lesquelles le bon document figure
+dans les k premiers résultats.
+
+| Recall | Valeur |
+|---|---|
+| @1 | 88 % (7/8) |
+| @3 | 88 % (7/8) |
+| @5 | 100 % (8/8) |
+
+Le recall@5 de 100 % montre que le bon document est toujours présent dans les
+cinq premiers résultats. Le recall@1 de 88 % indique qu'il arrive en première
+position dans la grande majorité des cas.
+
+### Reranking (cross-encoder)
+
+Un cross-encoder (`ms-marco-MiniLM-L-6-v2`) re-classe les résultats du retrieval
+vectoriel selon leur pertinence réelle. Effet mesuré sur le golden dataset :
+
+| Recall | Sans reranking | Avec reranking |
+|---|---|---|
+| @1 | 88 % | 100 % |
+| @3 | 88 % | 100 % |
+| @5 | 100 % | 100 % |
+
+Le reranking corrige les cas où le bon document était récupéré mais mal classé :
+le recall@1 passe de 88 % à 100 %. Le coût est une latence supplémentaire, les
+chunks étant repassés dans un second modèle.
+
+### Intégration continue (CI)
+
+Un workflow GitHub Actions (`.github/workflows/ci.yml`) se déclenche à chaque
+push et vérifie la syntaxe de tous les fichiers Python ainsi que la validité du
+golden dataset, garantissant qu'aucune régression de base n'est introduite.
+
+---
+
+## 11. Pistes d'amélioration
+
+- **Recherche hybride** (BM25 + vectoriel) pour combiner correspondance exacte
+  de mots-clés et similarité sémantique.
+- **Cache des embeddings** pour réduire la latence et le coût.
+- **Enrichissement du corpus** et chunking plus fin (par caractères).
+- **Interface web** pour interroger l'assistant sans passer par l'API.
