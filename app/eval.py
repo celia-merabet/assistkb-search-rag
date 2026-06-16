@@ -1,5 +1,5 @@
 import json
-from app.retrieve import search
+from app.retrieve import search, rerank
 
 GOLDEN_PATH = "eval/golden.json"
 
@@ -9,41 +9,48 @@ def load_golden():
         return json.load(f)
 
 
-def evaluate(top_k_values=(1, 3, 5)):
+def rang_du_doc(retrieved, expected):
+    for i, doc in enumerate(retrieved, start=1):
+        if expected in doc:
+            return i
+    return None
+
+
+def evaluate(top_k_values=(1, 3, 5), use_rerank=False):
     golden = load_golden()
     n = len(golden)
     hits = {k: 0 for k in top_k_values}
-    details = []
 
     for item in golden:
         question = item["question"]
         expected = item["expected_source"]
 
-        # Recherche directe dans Qdrant (pas d'appel LLM)
-        results = search(question, top_k=max(top_k_values))
-        retrieved = [r.payload["source"] for r in results]
+        # On récupère plus de candidats si on rerank (10), sinon 5
+        results = search(question, top_k=10 if use_rerank else max(top_k_values))
+        if use_rerank:
+            results = rerank(question, results)
 
-        rang = None
-        for i, doc in enumerate(retrieved, start=1):
-            if expected in doc:
-                rang = i
-                break
+        retrieved = [r.payload["source"] for r in results]
+        rang = rang_du_doc(retrieved, expected)
 
         for k in top_k_values:
             if rang is not None and rang <= k:
                 hits[k] += 1
 
-        details.append((question[:50], expected, rang))
+    return hits, n
 
-    print("=== Détail par question ===")
-    for q, exp, rang in details:
-        statut = f"rang {rang}" if rang else "ABSENT"
-        print(f"  [{statut:>8}] {q}  ->  attendu: {exp}")
 
-    print("\n=== RECALL@k ===")
-    for k in top_k_values:
+def main():
+    print("=== SANS reranking ===")
+    hits, n = evaluate(use_rerank=False)
+    for k in (1, 3, 5):
+        print(f"  Recall@{k} : {hits[k]}/{n} = {hits[k] / n * 100:.0f} %")
+
+    print("\n=== AVEC reranking (cross-encoder) ===")
+    hits, n = evaluate(use_rerank=True)
+    for k in (1, 3, 5):
         print(f"  Recall@{k} : {hits[k]}/{n} = {hits[k] / n * 100:.0f} %")
 
 
 if __name__ == "__main__":
-    evaluate()
+    main()

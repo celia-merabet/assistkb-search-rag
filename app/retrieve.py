@@ -1,6 +1,6 @@
 import os
 from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 
 # Host configurable : "localhost" en local, "qdrant" dans Docker
 QDRANT_HOST = os.environ.get("QDRANT_HOST", "localhost")
@@ -11,6 +11,9 @@ COLLECTION = "assistkb"
 client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
+# Cross-encoder pour le reranking (chargé une seule fois)
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+
 
 def search(query, top_k=5):
     query_vec = model.encode(query, normalize_embeddings=True)
@@ -20,6 +23,17 @@ def search(query, top_k=5):
         limit=top_k
     )
     return results
+
+
+def rerank(query, results):
+    """Re-classe les résultats Qdrant avec un cross-encoder.
+    Renvoie la liste re-triée par pertinence décroissante."""
+    if not results:
+        return results
+    paires = [(query, r.payload["text"]) for r in results]
+    scores = reranker.predict(paires)
+    classes = sorted(zip(results, scores), key=lambda x: x[1], reverse=True)
+    return [r for r, s in classes]
 
 
 def should_refuse(results):
