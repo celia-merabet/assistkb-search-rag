@@ -1,0 +1,34 @@
+[
+  {
+    "question": "Que s'est-il passé lors de l'incident hallucination ?",
+    "expected_source": "incident_2026-02_hallucination.html"
+  },
+  {
+    "question": "Quelles sont les causes de l'incident de latence RAG ?",
+    "expected_source": "incident_2026-03_latence-rag.html"
+  },
+  {
+    "question": "Comment anonymiser le corpus selon les règles RGPD ?",
+    "expected_source": "rgpd_anonymisation_corpus.html"
+  },
+  {
+    "question": "Que contient le retour d'expérience de la mission Banque Alpha ?",
+    "expected_source": "rex_mission_banque-alpha.html"
+  },
+  {
+    "question": "Quelle est l'architecture d'AssistKB ?",
+    "expected_source": "archi_assistkb_v0.html"
+  },
+  {
+    "question": "À quoi sert l'outil Qdrant et comment l'utiliser ?",
+    "expected_source": "fiche_outil_qdrant.html"
+  },
+  {
+    "question": "Comment détecter et remplacer les données personnelles dans les documents ?",
+    "expected_source": "rgpd_anonymisation_corpus.html"
+  },
+  {
+    "question": "Quels problèmes de performance ont été rencontrés sur le RAG ?",
+    "expected_source": "incident_2026-03_latence-rag.html"
+  }
+]
