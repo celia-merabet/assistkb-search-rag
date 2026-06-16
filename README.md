@@ -93,18 +93,33 @@ docker compose exec api python -m app.eval
 
 ```
 app/
-  ingest.py      # extraction + chunking des documents
-  embed.py       # vectorisation (all-MiniLM-L6-v2)
-  store.py       # indexation Qdrant (IDs déterministes anti-doublons)
-  retrieve.py    # recherche top-k + seuil de refus
-  generate.py    # appel LLM Groq, réponse citée
-  api.py         # API FastAPI POST /ask
-  metrics.py     # mesures qualité + exploitation
+  __init__.py
+  ingest.py        # extraction + chunking des documents
+  embed.py         # vectorisation (all-MiniLM-L6-v2)
+  store.py         # indexation Qdrant (IDs déterministes anti-doublons)
+  retrieve.py      # recherche top-k + seuil de refus + reranking
+  generate.py      # appel LLM Groq, réponse citée
+  api.py           # API FastAPI POST /ask
+  metrics.py       # mesures qualité + exploitation
+  eval.py          # évaluation recall@k sur golden dataset
+analytics/
+  evaluate.py      # script d'analyse du retrieval
 scripts/
-  index.py       # pipeline complet (lancé au démarrage du conteneur)
-  fetch_corpus.sh / .ps1   # récupération de corpus additionnel
-corpus/seed/     # base de connaissances (incidents, REX, RGPD, architecture)
-docs/            # compte-rendu et captures
+  __init__.py
+  index.py         # pipeline complet (lancé au démarrage du conteneur)
+  fetch_corpus.sh  # récupération de corpus additionnel
+corpus/seed/       # base de connaissances (incidents, REX, RGPD, architecture)
+eval/
+  golden.json      # jeu de questions de référence (recall@k)
+docs/
+  COMPTE-RENDU.md  # compte-rendu du projet
+  images/          # captures des tests
+.github/workflows/
+  ci.yml           # intégration continue (vérification au push)
+Dockerfile
+docker-compose.yml
+requirements.txt
+.env.example
 ```
 
 ---
