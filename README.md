@@ -37,7 +37,6 @@ base de connaissances hétérogène (incidents, REX, fiches outils, RGPD).
 ```bash
 git clone https://github.com/celia-merabet/assistkb-search-rag.git
 cd assistkb-search-rag
-git checkout r3-retrieval
 
 # Configurer la clé API (gratuite sur console.groq.com)
 cp .env.example .env
@@ -129,7 +128,7 @@ requirements.txt
 Le corpus de base (`corpus/seed`) contient des documents internes simulés :
 fiches d'incidents, retours d'expérience de mission, fiche outil Qdrant,
 document RGPD et description d'architecture. Un corpus additionnel (data.gouv)
-peut être récupéré via `scripts/fetch_corpus.ps1 -Profile open`.
+peut être récupéré via `scripts/fetch_corpus.sh`.
 
 ---
 
